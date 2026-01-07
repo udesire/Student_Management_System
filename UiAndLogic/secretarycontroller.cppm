@@ -15,6 +15,7 @@ using std::string;
 
 export class SecretaryController {
 private:
+    SecretaryRole* secretary;
     CourseBroker* courseBroker;
     TeacherBroker* teacherBroker;
     TeachingTaskBroker* taskBroker;
@@ -31,7 +32,7 @@ public:
 SecretaryController::SecretaryController(SecretaryRole* sec, CourseBroker* cBroker, TeacherBroker* tBroker, TeachingTaskBroker* tskBroker, DataBroker* db)
     : secretary(sec), courseBroker(cBroker), teacherBroker(tBroker), taskBroker(tskBroker), dataBroker(db) {}
 
-bool SecretaryController::createCourse(const std::string& courseId, const std::string& courseName, float credits) {
+bool SecretaryController::createCourse(const string& courseId, const string& courseName, float credits) {
     if (courseId.empty() || courseName.empty()) throw std::invalid_argument("课程ID/名称不能为空");
     if (credits <= 0) throw std::invalid_argument("学分需大于0");
     if (courseBroker->findCourseById(courseId)) throw std::runtime_error("课程ID已存在");
@@ -41,8 +42,8 @@ bool SecretaryController::createCourse(const std::string& courseId, const std::s
 }
 
 bool SecretaryController::createTeachingTask(const TaskCreationRequest& request) {
-    std::string courseId = request.getCourseId();
-    std::string teacherId = request.getTeacherId();
+    string courseId = request.getCourseId();
+    string teacherId = request.getTeacherId();
     int maxCapacity = request.getMaxCapacity();
 
     if (maxCapacity <= 0) throw std::invalid_argument("任务容量需大于0");
@@ -52,7 +53,7 @@ bool SecretaryController::createTeachingTask(const TaskCreationRequest& request)
     if (!teacher) throw std::runtime_error("教师不存在");
 
     // 生成任务ID + 设置选课时间（默认30天）
-    std::string taskId = courseId + "_" + std::to_string(std::time(nullptr));
+    string taskId = courseId + "_" + std::to_string(std::time(nullptr));
     std::time_t now = std::time(nullptr);
     TeachingTask* task = new TeachingTask(
         taskId,
@@ -69,18 +70,18 @@ bool SecretaryController::createTeachingTask(const TaskCreationRequest& request)
     return saveOk;
 }
 
-bool SecretaryController::toggleCourseActive(const std::string& courseId, bool active) {
+bool SecretaryController::toggleCourseActive(const string& courseId, bool active) {
     Course* course = courseBroker->findCourseById(courseId);
     if (!course) throw std::runtime_error("课程不存在");
     course->setIsActive(active);
     return active ? courseBroker->activateCourse(courseId) : courseBroker->deactivateCourse(courseId);
 }
 
-std::vector<Course*> SecretaryController::getAllCourses() {
+vector<Course*> SecretaryController::getAllCourses() {
     return courseBroker->getAllCourses();
 }
 
-bool SecretaryController::assignTeacherToTask(const std::string& taskId, const std::string& teacherId) {
+bool SecretaryController::assignTeacherToTask(const string& taskId, const string& teacherId) {
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
     return taskBroker->assignTeacherToTask(taskId, teacherId);

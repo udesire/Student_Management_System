@@ -30,16 +30,16 @@ public:
 StudentController::StudentController(StudentBroker* sBroker, CourseBroker* cBroker, TeachingTaskBroker* tBroker)
     : studentBroker(sBroker), courseBroker(cBroker), taskBroker(tBroker) {}
 
-StudentRole* StudentController::getStudentProfile(const std::string& studentId) {
+StudentRole* StudentController::getStudentProfile(const string& studentId) {
     if (studentId.empty()) throw std::invalid_argument("学生ID不能为空");
     StudentRole* student = studentBroker->findStudentById(studentId);
     if (!student) throw std::runtime_error("学生不存在");
     return student;
 }
 
-std::vector<Course*> StudentController::getAllEnrolledCourses(const std::string& studentId) {
+vector<Course*> StudentController::getAllEnrolledCourses(const string& studentId) {
     StudentRole* student = getStudentProfile(studentId);
-    std::vector<Course*> courses;
+    vector<Course*> courses;
     for (const auto& taskId : student->getEnrolledTasksId()) {
         TeachingTask* task = taskBroker->findTaskById(taskId);
         if (task) {
@@ -52,9 +52,9 @@ std::vector<Course*> StudentController::getAllEnrolledCourses(const std::string&
     return courses;
 }
 
-std::vector<TeachingTask*> StudentController::getAllEnrolledTasks(const std::string& studentId) {
+vector<TeachingTask*> StudentController::getAllEnrolledTasks(const string& studentId) {
     StudentRole* student = getStudentProfile(studentId);
-    std::vector<TeachingTask*> tasks;
+    vector<TeachingTask*> tasks;
     for (const auto& taskId : student->getEnrolledTasksId()) {
         TeachingTask* task = taskBroker->findTaskById(taskId);
         if (task) tasks.push_back(task);
@@ -62,7 +62,7 @@ std::vector<TeachingTask*> StudentController::getAllEnrolledTasks(const std::str
     return tasks;
 }
 
-bool StudentController::enrollStudentInTask(const std::string& studentId, const std::string& taskId) {
+bool StudentController::enrollStudentInTask(const string& studentId, const string& taskId) {
     // 1. 基础校验
     StudentRole* student = getStudentProfile(studentId);
     TeachingTask* task = taskBroker->findTaskById(taskId);
@@ -88,7 +88,7 @@ bool StudentController::enrollStudentInTask(const std::string& studentId, const 
     return false;
 }
 
-bool StudentController::dropStudentFromTask(const std::string& studentId, const std::string& taskId) {
+bool StudentController::dropStudentFromTask(const string& studentId, const string& taskId) {
     StudentRole* student = getStudentProfile(studentId);
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
@@ -105,7 +105,7 @@ bool StudentController::dropStudentFromTask(const std::string& studentId, const 
     return false;
 }
 
-float StudentController::calculateStudentGPA(const std::string& studentId) {
+float StudentController::calculateStudentGPA(const string& studentId) {
     float gpa = studentBroker->calculateGPA(studentId);
     StudentRole* student = getStudentProfile(studentId);
     student->setCurrentGPA(gpa);
@@ -113,7 +113,7 @@ float StudentController::calculateStudentGPA(const std::string& studentId) {
     return gpa;
 }
 
-std::vector<GradeRecord*> StudentController::getStudentGrades(const std::string& studentId) {
+vector<GradeRecord*> StudentController::getStudentGrades(const string& studentId) {
     // 从TeacherBroker查询学生成绩（实际需扩展Broker接口）
     return studentBroker->getStudentGrades(studentId);
 }

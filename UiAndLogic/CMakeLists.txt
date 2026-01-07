@@ -11,11 +11,12 @@ project(UiAndLogic LANGUAGES CXX)
 add_executable(UiAndLogic
     #math.cpp                              # 模块实现单元
     main.cpp
-
 )
 
 set(PRESENTATION_MODULES
-
+    inputhelper.cppm
+    tableformatter.cppm
+    terminalui.cppm
 )
 
 set(APPLICATIONLOGIC_MODULES
@@ -25,6 +26,7 @@ set(APPLICATIONLOGIC_MODULES
     secretarycontroller.cppm
     coursecontroller.cppm
     gradecontroller.cppm
+    datatype.cppm
 )
 source_group("presentation" FILES ${PRESENTATION_MODULES})
 source_group("applicationlogic" FILES ${APPLICATIONLOGIC_MODULES})

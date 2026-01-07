@@ -29,17 +29,17 @@ public:
 CourseController::CourseController(CourseBroker* cBroker, TeachingTaskBroker* tBroker, StudentBroker* sBroker)
     : courseBroker(cBroker), taskBroker(tBroker), studentBroker(sBroker) {}
 
-Course* CourseController::getCourseDetails(const std::string& courseId) {
+Course* CourseController::getCourseDetails(const string& courseId) {
     if (courseId.empty()) throw std::invalid_argument("课程ID不能为空");
     Course* course = courseBroker->findCourseById(courseId);
     if (!course) throw std::runtime_error("课程不存在");
     return course;
 }
 
-std::vector<TeachingTask*> CourseController::getCourseTasks(const std::string& courseId) {
+vector<TeachingTask*> CourseController::getCourseTasks(const string& courseId) {
     Course* course = getCourseDetails(courseId);
-    std::vector<TeachingTask*> allTasks = taskBroker->getAllTasks();
-    std::vector<TeachingTask*> courseTasks;
+    vector<TeachingTask*> allTasks = taskBroker->getAllTasks();
+    vector<TeachingTask*> courseTasks;
     for (auto& task : allTasks) {
         if (task->getCourseId() == courseId) {
             courseTasks.push_back(task);
@@ -48,7 +48,7 @@ std::vector<TeachingTask*> CourseController::getCourseTasks(const std::string& c
     return courseTasks;
 }
 
-std::vector<StudentRole*> CourseController::getTaskStudents(const std::string& taskId) {
+vector<StudentRole*> CourseController::getTaskStudents(const string& taskId) {
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
     std::vector<StudentRole*> students;
@@ -59,14 +59,14 @@ std::vector<StudentRole*> CourseController::getTaskStudents(const std::string& t
     return students;
 }
 
-bool CourseController::isCourseActive(const std::string& courseId) {
+bool CourseController::isCourseActive(const string& courseId) {
     Course* course = getCourseDetails(courseId);
     return course->getIsActive();
 }
 
-std::vector<Course*> CourseController::getAvailableCourses() {
-    std::vector<Course*> allCourses = courseBroker->getAllCourses();
-    std::vector<Course*> availableCourses;
+vector<Course*> CourseController::getAvailableCourses() {
+    vector<Course*> allCourses = courseBroker->getAllCourses();
+    vector<Course*> availableCourses;
     for (auto& course : allCourses) {
         if (course->getIsActive()) {
             availableCourses.push_back(course);

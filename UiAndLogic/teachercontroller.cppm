@@ -29,17 +29,17 @@ public:
 TeacherController::TeacherController(TeacherBroker* tBroker, CourseBroker* cBroker, TeachingTaskBroker* tskBroker)
     : teacherBroker(tBroker), courseBroker(cBroker), taskBroker(tskBroker) {}
 
-TeacherRole* TeacherController::getTeacherProfile(const std::string& teacherId) {
+TeacherRole* TeacherController::getTeacherProfile(const string& teacherId) {
     if (teacherId.empty()) throw std::invalid_argument("教师ID不能为空");
     TeacherRole* teacher = teacherBroker->findTeacherById(teacherId);
     if (!teacher) throw std::runtime_error("教师不存在");
     return teacher;
 }
 
-std::vector<TeachingTask*> TeacherController::getTeachingAssignments(const std::string& teacherId) {
+vector<TeachingTask*> TeacherController::getTeachingAssignments(const std::string& teacherId) {
     TeacherRole* teacher = getTeacherProfile(teacherId);
-    std::vector<TeachingTask*> allTasks = taskBroker->getAllTasks();
-    std::vector<TeachingTask*> teacherTasks;
+    vector<TeachingTask*> allTasks = taskBroker->getAllTasks();
+    vector<TeachingTask*> teacherTasks;
     for (auto& task : allTasks) {
         if (task->getTeacherId() == teacherId) {
             teacherTasks.push_back(task);
@@ -50,9 +50,9 @@ std::vector<TeachingTask*> TeacherController::getTeachingAssignments(const std::
 
 bool TeacherController::submitStudentGrade(const GradeSubmission& submission) {
     // 1. 基础校验
-    const std::string& teacherId = submission.getTeacherId();
-    const std::string& studentId = submission.getStudentId();
-    const std::string& taskId = submission.getTaskId();
+    const string& teacherId = submission.getTeacherId();
+    const string& studentId = submission.getStudentId();
+    const string& taskId = submission.getTaskId();
     float score = submission.getScore();
 
     if (score < 0 || score > 100) throw std::invalid_argument("成绩需在0-100之间");
@@ -66,7 +66,7 @@ bool TeacherController::submitStudentGrade(const GradeSubmission& submission) {
     return teacherBroker->inputStudentGrade(teacherId, studentId, taskId, score);
 }
 
-std::vector<StudentRole*> TeacherController::getTaskEnrollments(const std::string& taskId) {
+vector<StudentRole*> TeacherController::getTaskEnrollments(const string& taskId) {
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
     std::vector<StudentRole*> students;
@@ -77,7 +77,7 @@ std::vector<StudentRole*> TeacherController::getTaskEnrollments(const std::strin
     return students;
 }
 
-std::vector<GradeRecord*> TeacherController::getTaskGrades(const std::string& taskId) {
+vector<GradeRecord*> TeacherController::getTaskGrades(const string& taskId) {
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
     return teacherBroker->getTaskGrades(taskId);
