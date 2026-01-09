@@ -20,6 +20,11 @@ add_executable(CourseSelection
     main.cpp
 )
 
+target_link_libraries(CourseSelection
+PRIVATE
+    CourseSelectionLib
+)
+
 # # 添加库 子项目生成
 # target_link_directories(CourseSelection PRIVATE
 #     ${CMAKE_CURRENT_BINARY_DIR}/Domain/lib  # 对应 Domain 库的 LIBRARY_OUTPUT_DIRECTORY
@@ -28,4 +33,4 @@ add_executable(CourseSelection
 # target_link_libraries(CourseSelection PRIVATE Domain)
 
 
-target_compile_features(UiAndLogic PRIVATE cxx_std_23)
+target_compile_features(CourseSelection PRIVATE cxx_std_23)

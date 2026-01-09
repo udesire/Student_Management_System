@@ -16,11 +16,14 @@ using std::string;
 export class StudentController {
 public:
     StudentController(StudentBroker* sBroker, CourseBroker* cBroker, TeachingTaskBroker* tBroker);
-    Student* getStudentProfile(const string& studentId);
+    StudentRole* getStudentProfile(const string& studentId);
     vector<Course*> getAllEnrolledCourses(const string& studentId);
     bool enrollStudent(const string& studentId, const string& taskId);
     bool dropStudent(const string& studentId, const string& taskId);
     float calculateGPA(const string& studentId);
+
+    // 弥补缺失部分
+    vector<class GradeRecord*> getStudentGrades(const string& studentId);
 private:
     StudentBroker* studentBroker;
     CourseBroker* courseBroker;
@@ -36,39 +39,41 @@ StudentRole* StudentController::getStudentProfile(const string& studentId) {
     if (!student) throw std::runtime_error("学生不存在");
     return student;
 }
+// 上层接口没有实现对应功能，就是查询对应task的id
+// vector<Course*> StudentController::getAllEnrolledCourses(const string& studentId) {
+//     StudentRole* student = getStudentProfile(studentId);
+//     vector<Course*> courses;
+//     for (const auto& taskId : student->getEnrolledTasksId()) {
+//         TeachingTask* task = taskBroker->findTaskById(taskId);
+//         if (task) {
+//             Course* course = courseBroker->findCourseById(task->getCourseId());
+//             if (course && std::find(courses.begin(), courses.end(), course) == courses.end()) {
+//                 courses.push_back(course);
+//             }
+//         }
+//     }
+//     return courses;
+// }
 
-vector<Course*> StudentController::getAllEnrolledCourses(const string& studentId) {
-    StudentRole* student = getStudentProfile(studentId);
-    vector<Course*> courses;
-    for (const auto& taskId : student->getEnrolledTasksId()) {
-        TeachingTask* task = taskBroker->findTaskById(taskId);
-        if (task) {
-            Course* course = courseBroker->findCourseById(task->getCourseId());
-            if (course && std::find(courses.begin(), courses.end(), course) == courses.end()) {
-                courses.push_back(course);
-            }
-        }
-    }
-    return courses;
-}
+// 和上边函数一样因为上层没有提供对应的taskid
+// vector<TeachingTask*> StudentController::getAllEnrolledTasks(const string& studentId) {
+//     StudentRole* student = getStudentProfile(studentId);
+//     vector<TeachingTask*> tasks;
+//     for (const auto& taskId : student->getEnrolledTasksId()) {
+//         TeachingTask* task = taskBroker->findTaskById(taskId);
+//         if (task) tasks.push_back(task);
+//     }
+//     return tasks;
+// }
 
-vector<TeachingTask*> StudentController::getAllEnrolledTasks(const string& studentId) {
-    StudentRole* student = getStudentProfile(studentId);
-    vector<TeachingTask*> tasks;
-    for (const auto& taskId : student->getEnrolledTasksId()) {
-        TeachingTask* task = taskBroker->findTaskById(taskId);
-        if (task) tasks.push_back(task);
-    }
-    return tasks;
-}
-
-bool StudentController::enrollStudentInTask(const string& studentId, const string& taskId) {
+bool StudentController::enrollStudent(const string& studentId, const string& taskId) {
     // 1. 基础校验
     StudentRole* student = getStudentProfile(studentId);
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
-    Course* course = courseBroker->findCourseById(task->getCourseId());
-    if (!course || !course->getIsActive()) throw std::runtime_error("课程未激活，无法选课");
+    // 取消激活逻辑，这个在最上层就没有存在过，顶多在DataBase中留空但并没有实现和写出来接口
+    // Course* course = courseBroker->findCourseById(task->getCourseId());
+    // if (!course || !course->getIsActive()) throw std::runtime_error("课程未激活，无法选课");
 
     // 2. 业务规则校验
     if (!task->isInEnrollTime()) throw std::runtime_error("超出选课时间范围");
@@ -78,9 +83,12 @@ bool StudentController::enrollStudentInTask(const string& studentId, const strin
     // 3. 执行选课
     bool taskOk = task->addStudent(studentId);
     bool studentOk = student->enrollInTask(taskId);
-    bool brokerOk = studentBroker->enrollInCourse(studentId, course->getCourseId());
+    // 无法获取到这个course,
+    // advice： 如果接口不行，使用参数如何
+  //  bool brokerOk = studentBroker->enrollInCourse(studentId, course->getId());
 
-    if (taskOk && studentOk && brokerOk) {
+    // if (taskOk && studentOk && brokerOk) {
+    if (taskOk && studentOk) {
         taskBroker->saveTask(task);
         studentBroker->saveStudent(student);
         return true;
@@ -88,7 +96,7 @@ bool StudentController::enrollStudentInTask(const string& studentId, const strin
     return false;
 }
 
-bool StudentController::dropStudentFromTask(const string& studentId, const string& taskId) {
+bool StudentController::dropStudent(const string& studentId, const string& taskId) {
     StudentRole* student = getStudentProfile(studentId);
     TeachingTask* task = taskBroker->findTaskById(taskId);
     if (!task) throw std::runtime_error("授课任务不存在");
@@ -105,17 +113,24 @@ bool StudentController::dropStudentFromTask(const string& studentId, const strin
     return false;
 }
 
-float StudentController::calculateStudentGPA(const string& studentId) {
-    float gpa = studentBroker->calculateGPA(studentId);
-    StudentRole* student = getStudentProfile(studentId);
-    student->setCurrentGPA(gpa);
-    studentBroker->saveStudent(student);
-    return gpa;
-}
+// GPA 由于上层接口问题 已经废弃该功能 后期添加
+// float StudentController::calculateStudentGPA(const string& studentId) {
+//     float gpa = studentBroker->calculateGPA(studentId);
+//     StudentRole* student = getStudentProfile(studentId);
+//     student->setCurrentGPA(gpa);
+//     studentBroker->saveStudent(student);
+//     return gpa;
+// }
 
-vector<GradeRecord*> StudentController::getStudentGrades(const string& studentId) {
+// 可以直接查询这个成绩表 暂时使用硬编码 todo : 解决硬编码问题
+vector<class GradeRecord*> StudentController::getStudentGrades(const string& studentId) {
     // 从TeacherBroker查询学生成绩（实际需扩展Broker接口）
-    return studentBroker->getStudentGrades(studentId);
+    // return studentBroker->getStudentGrades(studentId);
+    DataBroker db;
+    auto res = db.executeSQL("select * from students");
+    db.selectPrint(res);
+    db.clear(res);
+    return {};
 }
 
 

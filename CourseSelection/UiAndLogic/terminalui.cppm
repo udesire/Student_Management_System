@@ -1,4 +1,4 @@
-export module TerminalUI;
+export module terminalUI;
 
 export import role;
 export import studentRole;
@@ -7,13 +7,15 @@ export import secretaryRole;
 export import course;
 export import teachingTask;
 
-export import MainController;
+export import maincontroller;
 export import InputHelper;
 export import TableFormatter;
 export import std;
 
 using std::vector;
 using std::string;
+using std::print;
+using std::endl;
 
 export class TerminalUI {
 public:
@@ -33,11 +35,11 @@ private:
 TerminalUI::TerminalUI(MainController* mc) : mainController(mc) {}
 
 void TerminalUI::showMainMenu() {
-    system("cls"); // Windows清屏，Linux/Mac替换为"clear"
+    std::system("clear"); // Windows清屏，Linux/Mac替换为"clear"
     print("==================== 选课系统主菜单 ====================\n");
     print("1. 学生登录\n");
     print("2. 教师登录\n");
-    print("3. 教务秘书登录\n");
+  //  print("3. 教务秘书登录\n");
     print("0. 退出系统\n");
     print("========================================================\n");
 
@@ -53,12 +55,13 @@ void TerminalUI::showMainMenu() {
             showTeacherMenu(teacherId);
             break;
         }
-        case 3:
-            showSecretaryMenu();
-            break;
+        // 删除秘书
+        // case 3:
+        //     showSecretaryMenu();
+        //     break;
         case 0:
             displayMessage("感谢使用选课系统！");
-            exit(0);
+            std::exit(0);
         default:
             displayError("无效选项，请重新选择！");
             showMainMenu();
@@ -66,7 +69,7 @@ void TerminalUI::showMainMenu() {
 }
 
 void TerminalUI::showStudentMenu(const string& studentId) {
-    system("cls");
+    std::system("clear");
     print("==================== 学生功能菜单 [{}] ====================\n",studentId);
     print("1. 查看个人信息\n");
     print("2. 查看已选课程/任务\n");
@@ -77,9 +80,11 @@ void TerminalUI::showStudentMenu(const string& studentId) {
     print("======================================================================\n");
 
     int choice = InputHelper::getMenuChoice();
+    // 看起来很像工厂模式，但是实际上感觉有问题，因为根本没有对应的函数
     try {
+        // todo : 等待实现的代码
         mainController->executeStudentCommand(choice, studentId);
-    } catch (const exception& e) {
+    } catch (const std::exception& e) {
         displayError(e.what());
     }
 
@@ -88,19 +93,20 @@ void TerminalUI::showStudentMenu(const string& studentId) {
 }
 
 void TerminalUI::showTeacherMenu(const string& teacherId) {
-    system("cls");
+    std::system("clear");
     print("==================== 教师功能菜单 [{}] ====================\n",teacherId);
     print("1. 查看个人信息\n");
     print("2. 查看授课任务\n");
     print("3. 录入学生成绩\n");
     print("4. 查看任务学生名单\n");
     print("0. 返回主菜单\n");
-    print("======================================================================" << endl;
+    print("======================================================================\n");
 
     int choice = InputHelper::getMenuChoice();
     try {
+        //需要实现
         mainController->executeTeacherCommand(choice, teacherId);
-    } catch (const exception& e) {
+    } catch (const std::exception& e) {
         displayError(e.what());
     }
 
@@ -108,35 +114,40 @@ void TerminalUI::showTeacherMenu(const string& teacherId) {
     else showMainMenu();
 }
 
-void TerminalUI::showSecretaryMenu() {
-    system("cls");
-    print("==================== 教务秘书功能菜单 ====================\n");
-    print("1. 创建课程\n");
-    print("2. 创建授课任务\n");
-    print("3. 激活/停用课程\n");
-    print("4. 查看所有课程\n");
-    print("0. 返回主菜单\n");
-    print("==========================================================\n");
+// 第一次迭代不需要教学秘书
+// void TerminalUI::showSecretaryMenu() {
+//     std::system("clear");
+//     print("==================== 教务秘书功能菜单 ====================\n");
+//     print("1. 创建课程\n");
+//     print("2. 创建授课任务\n");
+//     print("3. 激活/停用课程\n");
+//     print("4. 查看所有课程\n");
+//     print("0. 返回主菜单\n");
+//     print("==========================================================\n");
 
-    int choice = InputHelper::getMenuChoice();
-    try {
-        mainController->executeSecretaryCommand(choice);
-    } catch (const exception& e) {
-        displayError(e.what());
-    }
+//     int choice = InputHelper::getMenuChoice();
+//     try {
+//         mainController->executeSecretaryCommand(choice);
+//     } catch (const exception& e) {
+//         displayError(e.what());
+//     }
 
-    if (choice != 0) showSecretaryMenu();
-    else showMainMenu();
-}
+//     if (choice != 0) showSecretaryMenu();
+//     else showMainMenu();
+// }
+
 
 void TerminalUI::displayMessage(const string& message) {
     print("\n[信息] {}\n" , message );
-    system("pause");
+// 这个是windows的 优化为 linux版本
+    //std::system("pause");
+    std::system("read -n 1 -s -p \"按任意键继续...\"");
 }
 
 void TerminalUI::displayError(const string& error) {
     print("\n[错误]{}\n " ,error );
-    system("pause");
+//   std::system("pause");
+    std::system("read -n 1 -s -p \"按任意键继续...\"");
 }
 
 std::string TerminalUI::getUserInput(const string& prompt) {

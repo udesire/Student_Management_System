@@ -28,6 +28,7 @@ private:
 TeacherBroker::TeacherBroker(DataBroker* db):
         db(db),tableName("teachers")
 {}
+TeacherBroker::~TeacherBroker() = default;
 
 bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
      const std::string& studentId,
@@ -37,7 +38,7 @@ bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
 {
     // 通过课程和老师id查看到对应   教学任务的id --- 1. 查看老师是不是真的有对应的教学任务，也就是对应给学生成绩的权限
     std::string findTaskSql = 
-        "SELECT task_id FROM Teaching_Tasks "
+        "SELECT task_id FROM teaching_tasks "
         "WHERE course_id = '" + courseId + "' "
         "AND teacher_id = '" + teacherId + "' LIMIT 1";
 
@@ -51,7 +52,7 @@ bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
 
     // 然后是验证这个学生是不是真的选了这个课程，虽然老师存在并且教授这个课程但是不一定学生选了这个课程
     std::string verifySql = 
-    "SELECT 1 FROM Grades "
+    "SELECT 1 FROM grades "
     "WHERE student_id = '" + studentId + "' "
     "AND task_id = '" + taskId + "' "
     "LIMIT 1";
@@ -65,7 +66,7 @@ bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
     }
     // 最后是更新成绩
     std::string updateSql = 
-    "UPDATE Grades "
+    "UPDATE grades "
     "SET grade = " + std::to_string(grade) + " "
     "WHERE student_id = '" + studentId + "' "
     "AND task_id = '" + taskId + "'";
@@ -82,7 +83,7 @@ bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
 bool TeacherBroker::assignToCourse(const std::string& teacherId, const std::string& courseId)
 {
     // 直接更新 Teaching_Tasks 表的 teacher_id 字段
-    std::string sql = "UPDATE Teaching_Tasks SET teacher_id = '" + teacherId + 
+    std::string sql = "UPDATE teaching_tasks SET teacher_id = '" + teacherId +
                      "' WHERE course_id = '" + courseId + "'";
     
     auto res = db->executeSQL(sql);

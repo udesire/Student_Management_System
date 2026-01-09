@@ -7,32 +7,7 @@ set(CMAKE_CXX_MODULE_STD ON)
 
 project(domain LANGUAGES CXX)
 
-# set(MODULE_LIB_DIR1 /opt/utils/modules)  # 模块库的目录的设置
-add_executable(domain
-    #math.cpp                              # 模块实现单元
-    main.cpp
 
-)
-
-set(MODULE_INTERFACE_FILES
-    #${MODULE_LIB_DIR1}/utils.cppm         #添加模块库的模块接口单元
-    #math.cppm                             # 模块接口单元
-    Role.cppm
-    SecretaryRole.cppm
-    StudentRole.cppm
-    TeacherRole.cppm
-    TeachingTask.cppm
-    Course.cppm
-)
-
-source_group("Modules" FILES ${MODULE_INTERFACE_FILES})
-target_sources(domain  PRIVATE FILE_SET cxx_modules TYPE CXX_MODULES
-    BASE_DIRS                              # 配置BASE_DIRS，用于组织构建输出目录，以便构建不同目录中(同名的)模块文件.
-        #${MODULE_LIB_DIR1}
-        ${CMAKE_CURRENT_SOURCE_DIR}
-    FILES ${MODULE_INTERFACE_FILES}
-)
-target_compile_features(domain PRIVATE cxx_std_23)
 
 # 然后就是创建动态库了
 add_library(
@@ -62,10 +37,10 @@ set_target_properties(
     VERSION 1.0.0
     SOVERSION 1
     # window 兼容
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin、
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin
     # macOS 未知 需要完成
 )
 
-
+target_compile_features(Domain PRIVATE cxx_std_23)
 
 

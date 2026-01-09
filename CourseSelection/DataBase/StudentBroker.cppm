@@ -32,7 +32,7 @@ StudentBroker::~StudentBroker(){
 bool StudentBroker::enrollInCourse(const std::string& studentId, const std::string& courseId)
 {
     //  首先需要找到对应的表 就是先找到对应的教学任务teachingTask
-    std::string findTaskSql = "SELECT task_id FROM Teaching_Tasks WHERE course_id = '" + courseId +
+    std::string findTaskSql = "SELECT task_id FROM teaching_tasks WHERE course_id = '" + courseId +
                                 "' AND status IS NULL OR status != 'closed' LIMIT 1";
     auto taskRes = db->executeSQL(findTaskSql);
 
@@ -47,7 +47,7 @@ bool StudentBroker::enrollInCourse(const std::string& studentId, const std::stri
     PQclear(taskRes);
 
     // 从Grade表中看这个学生是否选择了这个课程
-    std::string checkSql = "SELECT COUNT(*) FROM Grades WHERE student_id = '" +
+    std::string checkSql = "SELECT COUNT(*) FROM grades WHERE student_id = '" +
                             studentId + "' AND task_id = '" + taskId + "'";
     auto checkRes = db->executeSQL(checkSql);
     int count = std::stoi(PQgetvalue(checkRes, 0, 0));
@@ -113,7 +113,7 @@ bool StudentBroker::saveStudent(StudentRole* student)
     // 丢弃掉废弃接口
     // float gpa = student->getCurrentGPA();
 
-    std::string sql = "INSERT INTO Students (id, name, gender) VALUES ('" +
+    std::string sql = "INSERT INTO students (id, name, gender) VALUES ('" +
                          id + "', '" +
                          name + "', '" +
                          gender + "', " +
@@ -127,6 +127,7 @@ bool StudentBroker::saveStudent(StudentRole* student)
 
 }
 
+// 已经弃用 上层接口没有实现
 double StudentBroker::calculateGPA(const std::string& studentId)
 {
 

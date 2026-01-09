@@ -1,6 +1,9 @@
 import std;
-
+import registrar;
 int main()
 {
-        std::cout << "这个是一个简单的测试" << std::endl;
+        auto&& system = Registrar::getInstance();
+        system.exec();
+        std::cout << "this is a test ?" << std::endl;
+        return 0;
 }

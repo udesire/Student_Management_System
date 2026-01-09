@@ -15,7 +15,7 @@ public:
     bool saveCourse(Course* Course);
     Course* findCourseById(const std::string& id);
 
-// 激活相关接口
+// 激活相关接口 [[已废弃]]
     bool activateCourse(const std::string& courseId);
     bool deactivateCourse(const std::string& courseId);
     bool isActiveCourse(const std::string& courseId);
@@ -79,10 +79,16 @@ bool CourseBroker::saveCourse(Course* Course)
 // 激活系列可能会删除 
 [[deprecated]]
 bool activateCourse(const std::string& courseId)
-{}
+{
+    return false;
+}
 [[deprecated]]
 bool deactiveCourse(const std::string& courseId)
-{}
+{
+    return false;
+}
 [[deprecated]]
 bool isActiveCourse(const std::string& courseId)
-{}
+{
+    return false;
+}

@@ -20,6 +20,10 @@ private:
     DataBroker* db;
     const std::string& tableName;
 };
+TeachingTaskBroker::~TeachingTaskBroker()
+{
+
+}
 
 TeachingTaskBroker::TeachingTaskBroker(DataBroker* db):
     db(db),tableName("teaching_tasks")
@@ -80,7 +84,7 @@ TeachingTask* TeachingTaskBroker::findTaskById(const std::string& id)
 bool TeachingTaskBroker::addStudentToTask(const std::string& taskId, const std::string& studentId)
 {
     // 检查是不是已经选择了
-    std::string checkSql = "SELECT COUNT(*) FROM GRADES WHERE student_id = '"
+    std::string checkSql = "SELECT COUNT(*) FROM grades WHERE student_id = '"
     + studentId + "' AND task_id = '" + taskId + "';";
 
     auto checkRes = db->executeSQL(checkSql);
@@ -92,7 +96,7 @@ bool TeachingTaskBroker::addStudentToTask(const std::string& taskId, const std::
     }
 
     // 将这个选课记录插入到GRADES表中
-    std::string insertSql = "INSERT INTO GRADES (student_id, task_id) VALUES ('"
+    std::string insertSql = "INSERT INTO grades (student_id, task_id) VALUES ('"
     + studentId + "', '" + taskId + "');";
     auto insertRes = db->executeSQL(insertSql);
     bool success = (PQresultStatus(insertRes) == PGRES_COMMAND_OK);
@@ -100,19 +104,20 @@ bool TeachingTaskBroker::addStudentToTask(const std::string& taskId, const std::
 
     // 更新 teaching_task 表的当前选课人数
     if (success) {
-        std::string updateSql = "UPDATE Teaching_Tasks SET current_enrolled = current_enrolled + 1"
+        std::string updateSql = "UPDATE teaching_tasks SET current_enrolled = current_enrolled + 1"
         "WHERE task_id = '" + taskId + "'";
         
         auto updateRes = db->executeSQL(updateSql);
         PQclear(checkRes);
     }
+    return success;
 }
 
 // 给老师分配教学任务
 bool TeachingTaskBroker::assignTeacherToTask(const string& taskId, const std::string& teacherId)
 {
     // 直接更新 Teaching_Tasks 表的 teacher_id 字段
-    std::string sql = "UPDATE Teaching_Tasks SET teacher_id = '" + teacherId + 
+    std::string sql = "UPDATE teaching_tasks SET teacher_id = '" + teacherId +
                      "' WHERE task_id = '" + taskId + "'";
     
     auto res = db->executeSQL(sql);

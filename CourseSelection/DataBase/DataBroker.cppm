@@ -28,6 +28,8 @@ public:
     // 新增 SQL 打印
     void selectPrint(PGresult* res);
 
+    void clear(PGresult* res);
+
     PGresult* executeSQL(const std::string& sql);
 
 
@@ -37,6 +39,12 @@ private:
     PGconn* connection;
     bool transactionActive;
 };
+
+void DataBroker::clear(PGresult* res)
+{
+    PQclear(res);
+}
+
 // SQL查询结果打印
 void DataBroker::selectPrint(PGresult* res)
 {
