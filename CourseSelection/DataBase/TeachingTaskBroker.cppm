@@ -1,11 +1,10 @@
 module;
 #include<libpq-fe.h>
-
 export module DataBase:TeachingTaskBroker;
 import std;
 import :DataBroker;
 // 前置声明
-class TeachingTask;
+import teachingTask;
 
 export class TeachingTaskBroker{
 public:
@@ -42,7 +41,7 @@ bool TeachingTaskBroker::saveTask(TeachingTask* teachingTask)
 }
 
 // 通过id寻找到教学任务
-TeachingTask* findTaskById(const std::string& id)
+TeachingTask* TeachingTaskBroker::findTaskById(const std::string& id)
 {
     // todo ： 后期修复db类中容易被攻击的函数pgexec
     std::string sql = "select * from teaching_tasks where id ='"+ id + "'";
@@ -52,7 +51,7 @@ TeachingTask* findTaskById(const std::string& id)
 
     // 检测查询出来的状态如何
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::cerr << "查询失败: " << PQerrorMessage(connection) << std::endl;
+        std::cerr << "查询失败"<< std::endl;
         PQclear(res);
         return nullptr;
     }
@@ -69,8 +68,8 @@ TeachingTask* findTaskById(const std::string& id)
     TeachingTask* task = new TeachingTask(
         task_id,
         time_slot,
-        (time_t)std::stoi(enroll_start),
-        (time_t)std::stoi(enroll_end),
+        (std::time_t)std::stoi(enroll_start),
+        (std::time_t)std::stoi(enroll_end),
         std::stoi(max)
     );
     return task; 
@@ -78,13 +77,13 @@ TeachingTask* findTaskById(const std::string& id)
 }
 
 // TODO : 将容量和时间检查功en能实现
-bool addStudentToTask(const std::string& taskId, const std::string& studentId)
+bool TeachingTaskBroker::addStudentToTask(const std::string& taskId, const std::string& studentId)
 {
     // 检查是不是已经选择了
     std::string checkSql = "SELECT COUNT(*) FROM GRADES WHERE student_id = '"
     + studentId + "' AND task_id = '" + taskId + "';";
 
-    auto checkRes = db->executeQuery(checkSql);
+    auto checkRes = db->executeSQL(checkSql);
     int count = std::stoi(PQgetvalue(checkRes, 0, 0));
     PQclear(checkRes);
     
@@ -104,13 +103,13 @@ bool addStudentToTask(const std::string& taskId, const std::string& studentId)
         std::string updateSql = "UPDATE Teaching_Tasks SET current_enrolled = current_enrolled + 1"
         "WHERE task_id = '" + taskId + "'";
         
-        auto updateRes = db->executeSQL(updatesql);
+        auto updateRes = db->executeSQL(updateSql);
         PQclear(checkRes);
     }
 }
 
 // 给老师分配教学任务
-bool assignTeacherToTask(const string& taskId, const std::string& teacherId)
+bool TeachingTaskBroker::assignTeacherToTask(const string& taskId, const std::string& teacherId)
 {
     // 直接更新 Teaching_Tasks 表的 teacher_id 字段
     std::string sql = "UPDATE Teaching_Tasks SET teacher_id = '" + teacherId + 

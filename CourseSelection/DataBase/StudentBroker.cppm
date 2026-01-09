@@ -4,7 +4,7 @@ export module DataBase:StudentBroker;
 import std;
 import :DataBroker;
 // 前置声明
-class StudentRole;
+import studentRole;
 
 export class StudentBroker{
 public:
@@ -51,7 +51,7 @@ bool StudentBroker::enrollInCourse(const std::string& studentId, const std::stri
                             studentId + "' AND task_id = '" + taskId + "'";
     auto checkRes = db->executeSQL(checkSql);
     int count = std::stoi(PQgetvalue(checkRes, 0, 0));
-    PQclear(checkRes)
+    PQclear(checkRes);
 
     if ( count > 0 ) {
         return false;
@@ -76,7 +76,7 @@ StudentRole* StudentBroker::findStudentById(const std::string& id)
 
     // 检测查询出来的状态如何
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::cerr << "查询失败: " << PQerrorMessage(connection) << std::endl;
+        std::cerr << "查询失败 "<< std::endl;
         PQclear(res);
         return nullptr;
     }
@@ -88,15 +88,14 @@ StudentRole* StudentBroker::findStudentById(const std::string& id)
     std::string gpa_str = PQgetvalue(res, 0, 3);
     // 转换类型
     float currentGPA = 0.0f;
-    if (gpa_str != nullptr && strlen(gpa_str) > 0) {
+    if (!gpa_str.empty()) {
             currentGPA = std::stof(gpa_str);
     }
     // 构建对象然后返回
     StudentRole* student = new StudentRole(
-            student_id ? student_id : "",
-            name ? name : "",
-            gender ? gender : "",
-            currentGPA
+            student_id.empty() ? student_id : "",
+            name.empty() ? name : "",
+            gender.empty() ? gender : ""
     );
     return student;
 }
@@ -111,18 +110,21 @@ bool StudentBroker::saveStudent(StudentRole* student)
     std::string id = student->getId();
     std::string name = student->getName();
     std::string gender = student->getGender();
-    float gpa = student->getCurrentGPA();
-    std::string sql = "INSERT INTO Students (id, name, gender, currentGPA) VALUES ('" +
+    // 丢弃掉废弃接口
+    // float gpa = student->getCurrentGPA();
+
+    std::string sql = "INSERT INTO Students (id, name, gender) VALUES ('" +
                          id + "', '" +
                          name + "', '" +
                          gender + "', " +
-                         std::to_string(gpa) + ")";
+                         ")";
     // 执行插入
-    auto res = executeSQL(sql);
+    auto res = db->executeSQL(sql);
     bool success = (PQresultStatus(res) == PGRES_COMMAND_OK);
 
     PQclear(res);
     return success;
+
 }
 
 double StudentBroker::calculateGPA(const std::string& studentId)

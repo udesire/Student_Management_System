@@ -33,6 +33,11 @@ add_executable(DataBase
 
 
 )
+# 私有连接
+target_link_libraries(DataBase
+PRIVATE
+    Domain  # 直接引用根项目中注册的 Domain 目标
+)
 
 target_sources(DataBase
     PRIVATE
@@ -67,8 +72,15 @@ pkg_check_modules(PQXX REQUIRED libpqxx)
 # 包含头文件路径
 target_include_directories(DataBase PRIVATE ${PQXX_INCLUDE_DIRS})
 
-# 链接 libpqxx 和 libpq（必须两个都链接）
-target_link_libraries(DataBase ${PQXX_LIBRARIES} pq)
+# 链接 libpqxx 和 libpq
+target_link_libraries(DataBase
+    PRIVATE
+    ${PQXX_LIBRARIES} pq)
 
 # ==================================================
+
+
+# 接下来是创建动态库了
+
+
 

@@ -12,7 +12,11 @@ add_executable(UiAndLogic
     #math.cpp                              # 模块实现单元
     main.cpp
 )
-
+# 私有连接
+target_link_libraries(UiAndLogic
+PRIVATE
+    Domain  # 直接引用根项目中注册的 Domain 目标
+)
 set(PRESENTATION_MODULES
     inputhelper.cppm
     tableformatter.cppm

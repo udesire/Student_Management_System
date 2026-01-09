@@ -34,3 +34,38 @@ target_sources(domain  PRIVATE FILE_SET cxx_modules TYPE CXX_MODULES
 )
 target_compile_features(domain PRIVATE cxx_std_23)
 
+# 然后就是创建动态库了
+add_library(
+    Domain
+    SHARED
+)
+
+target_sources(Domain
+PUBLIC
+    FILE_SET CXX_MODULES
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+    FILES Course.cppm Role.cppm SecretaryRole.cppm
+        StudentRole.cppm TeacherRole.cppm
+        TeachingTask.cppm
+)
+
+target_include_directories(Domain
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# 设置目标属性，仅对Linux生效
+# todo: 跨平台设置
+set_target_properties(
+    Domain PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
+    VERSION 1.0.0
+    SOVERSION 1
+    # window 兼容
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin、
+    # macOS 未知 需要完成
+)
+
+
+
+

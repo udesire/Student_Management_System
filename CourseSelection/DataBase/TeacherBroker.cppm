@@ -5,7 +5,8 @@ export module DataBase:TeacherBroker;
 import std;
 import :DataBroker;
 // 前置声明
-class Teacher;
+import teacherRole;
+using Teacher = TeacherRole;
 
 export class TeacherBroker{
 public:
@@ -42,7 +43,7 @@ bool TeacherBroker::inputStudentGrade(const std::string& teacherId,
 
     auto taskRes = db->executeSQL(findTaskSql); 
     if (PQresultStatus(taskRes) != PGRES_TUPLES_OK || PQntuples(taskRes) == 0) {
-        db->clearResult(taskRes);
+        PQclear(taskRes);
         return false; // 该教师没有教授这门课
     }
     std::string taskId = PQgetvalue(taskRes, 0, 0);

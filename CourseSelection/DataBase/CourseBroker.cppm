@@ -5,7 +5,7 @@ export module DataBase:CourseBroker;
 import std;
 import :DataBroker;
 // 前置声明
-class Course;
+import course;
 
 export class CourseBroker{
 public:
@@ -41,7 +41,7 @@ Course* CourseBroker::findCourseById(const std::string& id)
 
     // 检测查询出来的状态如何
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::cerr << "查询失败: " << PQerrorMessage(connection) << std::endl;
+        std::cerr << "查询失败" << std::endl;
         PQclear(res);
         return nullptr;
     }
@@ -57,7 +57,7 @@ Course* CourseBroker::findCourseById(const std::string& id)
     Course* course = new Course(
         course_id,
         name,
-        credits
+        std::stof(credits)
     );
 
     return course;
@@ -68,7 +68,7 @@ bool CourseBroker::saveCourse(Course* Course)
     std::string sql = "INSERT INTO courses (id, name, credits) VALUES ('"
         + Course->getId() + "', '"
         + Course->getName() + "', '"
-        + Course->getCredits() + "');";
+        + std::to_string(Course->getCredits()) + "');";
 
     auto res = db->executeSQL(sql);
     bool success = (PQresultStatus(res) == PGRES_COMMAND_OK);
